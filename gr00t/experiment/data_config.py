@@ -100,14 +100,8 @@ def import_external_data_config(data_config_str: str) -> Optional[BaseDataConfig
 
         module = importlib.import_module(module_path)
         if not hasattr(module, class_name):
-            available = [
-                n
-                for n in dir(module)
-                if not n.startswith("_") and isinstance(getattr(module, n), type)
-            ]
-            raise AttributeError(
-                f"Class '{class_name}' not found in '{module_path}'. Available: {available}"
-            )
+            available = [n for n in dir(module) if not n.startswith("_") and isinstance(getattr(module, n), type)]
+            raise AttributeError(f"Class '{class_name}' not found in '{module_path}'. Available: {available}")
 
         # assert if the class has 'transform' and 'modality_config' methods
         if not hasattr(getattr(module, class_name), "transform"):
@@ -264,6 +258,17 @@ class So100DataConfig(BaseDataConfig):
 
 class So100DualCamDataConfig(So100DataConfig):
     video_keys = ["video.front", "video.wrist"]
+    state_keys = ["state.single_arm", "state.gripper"]
+    action_keys = ["action.single_arm", "action.gripper"]
+    language_keys = ["annotation.human.task_description"]
+    observation_indices = [0]
+    action_indices = list(range(16))
+
+
+class So100FrontTopCamDataConfig(So100DataConfig):
+    """SO-100/SO-101 configuration with front and top cameras (no wrist camera)."""
+
+    video_keys = ["video.front", "video.top"]
     state_keys = ["state.single_arm", "state.gripper"]
     action_keys = ["action.single_arm", "action.gripper"]
     language_keys = ["annotation.human.task_description"]
@@ -781,6 +786,7 @@ DATA_CONFIG_MAP = {
     "single_panda_gripper": SinglePandaGripperDataConfig(),
     "so100": So100DataConfig(),
     "so100_dualcam": So100DualCamDataConfig(),
+    "so100_fronttop": So100FrontTopCamDataConfig(),
     "unitree_g1": UnitreeG1DataConfig(),
     "unitree_g1_full_body": UnitreeG1FullBodyDataConfig(),
     "oxe_droid": OxeDroidDataConfig(),

@@ -118,9 +118,7 @@ class BaseInferenceServer:
 
                 # Validate token before processing request
                 if not self._validate_token(request):
-                    self.socket.send(
-                        MsgSerializer.to_bytes({"error": "Unauthorized: Invalid API token"})
-                    )
+                    self.socket.send(MsgSerializer.to_bytes({"error": "Unauthorized: Invalid API token"}))
                     continue
 
                 endpoint = request.get("endpoint", "get_action")
@@ -129,11 +127,7 @@ class BaseInferenceServer:
                     raise ValueError(f"Unknown endpoint: {endpoint}")
 
                 handler = self._endpoints[endpoint]
-                result = (
-                    handler.handler(request.get("data", {}))
-                    if handler.requires_input
-                    else handler.handler()
-                )
+                result = handler.handler(request.get("data", {})) if handler.requires_input else handler.handler()
                 self.socket.send(MsgSerializer.to_bytes(result))
             except Exception as e:
                 print(f"Error in server: {e}")
@@ -177,9 +171,7 @@ class BaseInferenceClient:
         """
         self.call_endpoint("kill", requires_input=False)
 
-    def call_endpoint(
-        self, endpoint: str, data: dict | None = None, requires_input: bool = True
-    ) -> dict:
+    def call_endpoint(self, endpoint: str, data: dict | None = None, requires_input: bool = True) -> dict:
         """
         Call an endpoint on the server.
 
